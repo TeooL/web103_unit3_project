@@ -1,52 +1,38 @@
 import React, { useState, useEffect } from 'react'
+import EventsAPI from '../services/EventsAPI'
 import '../css/Event.css'
 
 const Event = (props) => {
 
-    const [event, setEvent] = useState([])
-    const [time, setTime] = useState([])
-    const [remaining, setRemaining] = useState([])
+    const [event, setEvent] = useState(props.eventData || {})
+    const [time, setTime] = useState('')
+    const [remaining, setRemaining] = useState('')
 
     useEffect(() => {
+		if (props.eventData) {
+			setEvent(props.eventData)
+			return
+		}
+
         (async () => {
             try {
-                const eventData = await EventsAPI.getEventsById(props.id)
+                const eventData = await EventsAPI.getEventById(props.id)
                 setEvent(eventData)
             }
             catch (error) {
                 throw error
             }
         }) ()
-    }, [])
+    }, [props.id, props.eventData])
 
     useEffect(() => {
-        (async () => {
-            try {
-                const result = await dates.formatTime(event.time)
-                setTime(result)
-            }
-            catch (error) {
-                throw error
-            }
-        }) ()
-    }, [event])
-
-    useEffect(() => {
-        (async () => {
-            try {
-                const timeRemaining = await dates.formatRemainingTime(event.remaining)
-                setRemaining(timeRemaining)
-                dates.formatNegativeTimeRemaining(remaining, event.id)
-            }
-            catch (error) {
-                throw error
-            }
-        }) ()
+        setTime(event.time || '')
+        setRemaining(event.remaining || '')
     }, [event])
 
     return (
         <article className='event-information'>
-            <img src={event.image} />
+            <img src={event.image} alt={event.title} />
 
             <div className='event-information-overlay'>
                 <div className='text'>
